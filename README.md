@@ -47,6 +47,7 @@ src/app/App.tsx
 4. [`docs/tasks/00-how-to-use-task-cards.md`](docs/tasks/00-how-to-use-task-cards.md)
 5. [`docs/tasks/01-phase-0-messy-sprint.md`](docs/tasks/01-phase-0-messy-sprint.md)
 6. [`docs/tasks/02-phase-0-debrief.md`](docs/tasks/02-phase-0-debrief.md)
+7. [`docs/prompts/phase-0.md`](docs/prompts/phase-0.md)
 
 ## 課程限制
 

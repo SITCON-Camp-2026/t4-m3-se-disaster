@@ -44,6 +44,8 @@
 4. 先請 coding agent 分析資料，不要一開始就改 code。
 5. 決定工作台最小版面，讓原始資訊、候選判斷和不能判斷的原因能同時被看見。
 
+若不知道怎麼問 coding agent，可以先使用 `docs/prompts/phase-0.md` 的 Prompt 1。
+
 不要爬社群、查地圖、補真實地址或從外部網站補資料。
 
 `sourceType` 只代表資料從哪裡來，不代表已被查核；即使來源看起來像官方公告，也要看 `verificationStatus` 與原文是否說明清楚。
