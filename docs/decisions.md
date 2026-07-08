@@ -32,7 +32,7 @@ Contributors should use Node 24, then run `pnpm install` and `pnpm run check`. N
 
 ### Decision
 
-Starter 保留 Phase 0 入口、messy data 顯示、查核狀態標示與保守安全預設；整理草稿的建立、查看、編輯、刪除或重設，留給 `docs/prompts/phase-0.md` 的 Prompt 2 引導學員完成。
+Starter 保留 Phase 0 入口、原始資訊顯示、查核狀態標示與保守安全預設；整理草稿的建立、查看、編輯、刪除或重設，留給學員依照 Phase 0 task card 使用 coding agent 完成。
 
 ### Consequences
 

@@ -1,13 +1,12 @@
 # Testing
 
-測試不是為了追求覆蓋率，而是為了把完成條件（Acceptance Criteria，簡稱 AC）、schema 與 event injection 的處理決策變成可驗證的成果。
+測試不是為了追求覆蓋率，而是為了把完成條件、資料格式與 Phase 0 安全邊界變成可驗證的成果。
 
 ## Required checks
 
-- [ ] schema validation
+- [ ] fixture validation
 - [ ] one component or app smoke test
-- [ ] one edge case test
-- [ ] event injection 後至少一個 adapter / validation test
+- [ ] one uncertainty or review-state test
 
 ## Commands
 
@@ -28,6 +27,6 @@ pnpm check
 
 ## Notes
 
-- `events/**` 是外部 dirty input，不要求直接通過 validation。
-- `src/fixtures/**` 是 normalized internal data，必須通過 validation。
-- 若需要支援外部格式，優先新增 adapter 測試。
+- Phase 0 原始資訊來自 `src/fixtures/phase-0/`。
+- 不確定資訊不能顯示成 confirmed / verified。
+- 新增 UI 時，測試應確認 GitHub Pages 首頁看得到核心成果。

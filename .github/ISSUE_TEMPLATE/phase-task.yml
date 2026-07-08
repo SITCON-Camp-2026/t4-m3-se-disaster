@@ -1,18 +1,18 @@
-name: Phase task
-description: Track one classroom phase task.
-title: "[Phase] "
-labels: ["phase-task"]
+name: Phase 0 task
+description: Track one Phase 0 classroom task.
+title: "[Phase 0] "
+labels: ["phase-0"]
 body:
   - type: input
     id: phase
     attributes:
       label: Current phase
-      placeholder: Phase 0 / SDD-lite / Build Sprint 1
+      placeholder: Phase 0
   - type: textarea
     id: sources
     attributes:
       label: Source materials
-      description: Files, PRs, issues, or slides students should read first.
+      description: Files, issues, or slides students should read first.
   - type: textarea
     id: tasks
     attributes:
@@ -27,4 +27,4 @@ body:
     id: stop
     attributes:
       label: Stop condition
-      description: When should the team stop adding features and switch to documentation or sharing?
+      description: When should students stop adding features and switch to observation or demo checks?
