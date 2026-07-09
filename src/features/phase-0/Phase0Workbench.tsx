@@ -3,6 +3,7 @@ import { StatusBadge } from "../../components/StatusBadge";
 import { Phase0FlowPanel } from "./Phase0FlowPanel";
 import { Phase0TracePanel } from "./Phase0TracePanel";
 import Phase0Editor from "./Phase0Editor";
+import { analyzePhase0Risk } from "./phase0-risk-analysis";
 import type { Phase0MessyRecord, Phase0JudgementDraft } from "./phase0-types";
 
 export function Phase0Workbench({
@@ -24,12 +25,23 @@ export function Phase0Workbench({
 }) {
   const selectedRecord =
     records.find((record) => record.id === selectedRecordId) ?? records[0];
+  const selectedDraft = drafts[selectedRecord.id];
+  const selectedAnalysis = analyzePhase0Risk(selectedRecord, selectedDraft);
+  const directUseReasons = Array.from(
+    new Set([
+      ...selectedAnalysis.blockers,
+      ...(selectedDraft?.blockers ?? []),
+      selectedDraft?.unsafeToActDirectly ? "草稿標示不可直接行動。" : "",
+    ]),
+  )
+    .filter(Boolean)
+    .slice(0, 3);
   const draftCount = Object.values(drafts).filter(Boolean).length;
 
   return (
     <div className="workbench">
       <div className="workbench__intro">
-        <p className="eyebrow">整理工作台</p>
+        <p className="eyebrow">整理草稿區</p>
         <h2>第一階段的成功不是分類正確，而是把為什麼現在還不能判斷說清楚。</h2>
         <p>
           這個頁面優先給資訊整理者：先判斷哪些資訊是未確認候選、哪些需要人工確認。
@@ -38,6 +50,9 @@ export function Phase0Workbench({
           這裡整合可編輯草稿、候選類型與人工確認線索，讓你更清楚哪些內容仍只是
           未驗證的候選，而不是已確認事實。
         </p>
+        <strong className="workbench__boundary">
+          不是派工畫面，也不是回報入口。
+        </strong>
       </div>
 
       <div className="workbench__summary">
@@ -58,6 +73,20 @@ export function Phase0Workbench({
           </span>
         </div>
       </div>
+
+      <section className="direct-use-warning" aria-label="不能直接變成任務原因">
+        <div>
+          <span>目前不能直接變成任務，因為</span>
+          <ul>
+            {(directUseReasons.length > 0
+              ? directUseReasons
+              : ["尚未留下足夠判斷理由，需要人工確認。"]
+            ).map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       <div className="workbench__layout">
         <aside className="workbench__queue" aria-label="選擇原始資訊">
@@ -80,20 +109,18 @@ export function Phase0Workbench({
         <div className="workbench__main">
           <RecordCard record={selectedRecord} />
 
-          <Phase0TracePanel
-            record={selectedRecord}
-            draft={drafts[selectedRecord.id]}
-          />
+          <Phase0TracePanel record={selectedRecord} draft={selectedDraft} />
 
           <Phase0FlowPanel
             record={selectedRecord}
-            draft={drafts[selectedRecord.id]}
+            records={records}
+            draft={selectedDraft}
             onApply={(draft) => onSaveDraft(draft)}
           />
 
           <Phase0Editor
             record={selectedRecord}
-            draft={drafts[selectedRecord.id]}
+            draft={selectedDraft}
             onChange={(draft) => onSaveDraft(draft)}
             onDelete={() => onDeleteDraft(selectedRecord.id)}
             onReset={() => onResetDraft(selectedRecord.id)}

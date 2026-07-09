@@ -3,7 +3,6 @@ import messyReports from "../fixtures/phase-0/messy-reports.json";
 import { EmptyState } from "../components/EmptyState";
 import { Phase0Dashboard } from "../features/phase-0/Phase0Dashboard";
 import { Phase0RawInfoPanel } from "../features/phase-0/Phase0RawInfoPanel";
-import { Phase0PreviewPanel } from "../features/phase-0/Phase0PreviewPanel";
 import { Phase0Workbench } from "../features/phase-0/Phase0Workbench";
 import { buildInitialDrafts } from "../features/phase-0/phase0-initial-drafts";
 import type {
@@ -11,13 +10,12 @@ import type {
   Phase0MessyRecord,
 } from "../features/phase-0/phase0-types";
 
-type TabKey = "dashboard" | "raw" | "preview" | "workbench";
+type TabKey = "dashboard" | "raw" | "workbench";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "dashboard", label: "整理儀表板" },
   { key: "raw", label: "原始資訊" },
-  { key: "preview", label: "預覽資料" },
-  { key: "workbench", label: "整理工作台" },
+  { key: "workbench", label: "整理草稿區" },
 ];
 
 const phase0Records = messyReports satisfies Phase0MessyRecord[];
@@ -30,10 +28,44 @@ export function App() {
   const [drafts, setDrafts] = useState<
     Record<string, Phase0JudgementDraft | undefined>
   >(() => buildInitialDrafts(phase0Records));
+  const [workbenchUnlocked, setWorkbenchUnlocked] = useState(false);
+  const [humanGateOpen, setHumanGateOpen] = useState(false);
+  const [humanGateChecked, setHumanGateChecked] = useState(false);
+  const [pendingWorkbenchRecordId, setPendingWorkbenchRecordId] = useState<
+    string | null
+  >(null);
+
+  function requestWorkbench(recordId = selectedRecordId) {
+    setSelectedRecordId(recordId);
+
+    if (workbenchUnlocked) {
+      setActiveTab("workbench");
+      return;
+    }
+
+    setPendingWorkbenchRecordId(recordId);
+    setHumanGateChecked(false);
+    setHumanGateOpen(true);
+  }
 
   function selectForWorkbench(recordId: string) {
-    setSelectedRecordId(recordId);
+    requestWorkbench(recordId);
+  }
+
+  function confirmHumanGate() {
+    if (!humanGateChecked) return;
+
+    setWorkbenchUnlocked(true);
+    setSelectedRecordId(pendingWorkbenchRecordId ?? selectedRecordId);
     setActiveTab("workbench");
+    setHumanGateOpen(false);
+    setPendingWorkbenchRecordId(null);
+  }
+
+  function cancelHumanGate() {
+    setHumanGateOpen(false);
+    setHumanGateChecked(false);
+    setPendingWorkbenchRecordId(null);
   }
 
   function saveDraft(draft: Phase0JudgementDraft) {
@@ -89,11 +121,14 @@ export function App() {
     <main className="layout">
       <header className="hero">
         <p className="eyebrow">SITCON Camp 2026</p>
-        <h1>災害資訊整理工作台</h1>
+        <h1>災害資訊整理草稿區</h1>
         <p>
           這個 v1 prototype
           優先支援資訊整理者：先讓你看見原始資料、判斷不確定性，
           再決定哪些候選資訊可以進一步檢查或交給後續協作者。
+        </p>
+        <p className="hero__boundary">
+          這不是新的災情回報表，也不接收真實現場資料、地址、電話或個資。
         </p>
         <div className="decision-strip" aria-label="訪談後的決策摘要">
           <div>
@@ -126,7 +161,11 @@ export function App() {
             key={tab.key}
             className={activeTab === tab.key ? "active" : ""}
             type="button"
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() =>
+              tab.key === "workbench"
+                ? requestWorkbench()
+                : setActiveTab(tab.key)
+            }
           >
             {tab.label}
           </button>
@@ -141,20 +180,15 @@ export function App() {
             records={phase0Records}
             drafts={drafts}
             onSelect={selectForWorkbench}
+            selectedRecordId={selectedRecordId}
+            onPreviewSelect={setSelectedRecordId}
+            onClassify={classifyRecord}
           />
         ) : activeTab === "raw" ? (
           <Phase0RawInfoPanel
             records={phase0Records}
             selectedRecordId={selectedRecordId}
             onSelect={selectForWorkbench}
-          />
-        ) : activeTab === "preview" ? (
-          <Phase0PreviewPanel
-            records={phase0Records}
-            selectedRecordId={selectedRecordId}
-            drafts={drafts}
-            onSelect={setSelectedRecordId}
-            onClassify={classifyRecord}
           />
         ) : (
           <Phase0Workbench
@@ -168,6 +202,56 @@ export function App() {
           />
         )}
       </section>
+
+      {humanGateOpen ? (
+        <div className="human-gate" role="presentation">
+          <section
+            aria-labelledby="human-gate-title"
+            aria-modal="true"
+            className="human-gate__dialog"
+            role="dialog"
+          >
+            <div className="human-gate__header">
+              <p className="eyebrow">使用限制</p>
+              <h2 id="human-gate-title">進入前閱讀提醒</h2>
+            </div>
+
+            <label className="human-gate__challenge">
+              <input
+                checked={humanGateChecked}
+                type="checkbox"
+                onChange={(event) => setHumanGateChecked(event.target.checked)}
+              />
+              <span aria-hidden="true" className="human-gate__checkbox" />
+              <span>
+                <strong>我知道這些資料仍是未整理資料</strong>
+                <small>不把候選內容當成已確認任務，也不直接派工。</small>
+              </span>
+            </label>
+
+            <div className="human-gate__status">
+              <span>{pendingWorkbenchRecordId ?? selectedRecordId}</span>
+              <p>
+                這一步只在本機確認使用意圖，沒有外部驗證或資料送出；勾選不代表任何資料已被查證。
+              </p>
+              <p>這也不是回報提交驗證，目前不接收新的真實回報。</p>
+            </div>
+
+            <div className="human-gate__actions">
+              <button type="button" onClick={cancelHumanGate}>
+                取消
+              </button>
+              <button
+                disabled={!humanGateChecked}
+                type="button"
+                onClick={confirmHumanGate}
+              >
+                進入整理草稿區
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

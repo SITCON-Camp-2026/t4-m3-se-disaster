@@ -7,8 +7,8 @@ import type { Phase0JudgementDraft, Phase0MessyRecord } from "./phase0-types";
 const kindLabels: Record<Phase0JudgementDraft["possibleKind"], string> = {
   help_request_candidate: "求助候選",
   site_status_candidate: "地點狀態候選",
-  task_candidate: "任務候選",
-  assignment_candidate: "人員指派候選",
+  task_candidate: "可能是需求線索",
+  assignment_candidate: "可能涉及人力線索",
   announcement_candidate: "公告候選",
   unknown: "候選類型待判斷",
 };

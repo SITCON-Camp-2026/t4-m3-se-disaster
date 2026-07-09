@@ -43,7 +43,7 @@ export function Phase0RawInfoPanel({
               <span>更新：{formatDateTime(record.updatedAt)}</span>
             </div>
             <button type="button" onClick={() => onSelect(record.id)}>
-              送到整理工作台
+              查看整理草稿
             </button>
           </article>
         ))}
