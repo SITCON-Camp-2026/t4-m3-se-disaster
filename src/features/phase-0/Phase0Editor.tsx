@@ -1,4 +1,10 @@
-import type { Phase0JudgementDraft, Phase0MessyRecord } from "./phase0-types";
+import type {
+  Phase0Confidence,
+  Phase0JudgementDraft,
+  Phase0MessyRecord,
+  Phase0PossibleKind,
+  Phase0SuggestedNextStep,
+} from "./phase0-types";
 
 export function Phase0Editor({
   record,
@@ -20,15 +26,20 @@ export function Phase0Editor({
         <p className="editor__hint">
           對於不確定資訊，請保留「不可直接行動」，並在備註欄中說明目前的判斷理由或缺口。
         </p>
-        <button type="button" onClick={() => onChange({
-          messyRecordId: record.id,
-          possibleKind: "unknown",
-          confidence: "low",
-          evidence: [],
-          blockers: [],
-          suggestedNextStep: "send_to_human_review",
-          unsafeToActDirectly: true,
-        })}>
+        <button
+          type="button"
+          onClick={() =>
+            onChange({
+              messyRecordId: record.id,
+              possibleKind: "unknown",
+              confidence: "low",
+              evidence: [],
+              blockers: [],
+              suggestedNextStep: "send_to_human_review",
+              unsafeToActDirectly: true,
+            })
+          }
+        >
           建立草稿
         </button>
       </div>
@@ -51,7 +62,9 @@ export function Phase0Editor({
         候選類型
         <select
           value={draft.possibleKind}
-          onChange={(e) => updateField("possibleKind", e.target.value as any)}
+          onChange={(e) =>
+            updateField("possibleKind", e.target.value as Phase0PossibleKind)
+          }
         >
           <option value="unknown">候選類型待判斷</option>
           <option value="help_request_candidate">求助候選</option>
@@ -66,7 +79,9 @@ export function Phase0Editor({
         信心程度
         <select
           value={draft.confidence}
-          onChange={(e) => updateField("confidence", e.target.value as any)}
+          onChange={(e) =>
+            updateField("confidence", e.target.value as Phase0Confidence)
+          }
         >
           <option value="low">低</option>
           <option value="medium">中</option>
@@ -94,7 +109,12 @@ export function Phase0Editor({
         下一步
         <select
           value={draft.suggestedNextStep}
-          onChange={(e) => updateField("suggestedNextStep", e.target.value as any)}
+          onChange={(e) =>
+            updateField(
+              "suggestedNextStep",
+              e.target.value as Phase0SuggestedNextStep,
+            )
+          }
         >
           <option value="send_to_human_review">交給人工確認</option>
           <option value="ask_for_more_info">補問來源或現場資訊</option>

@@ -4,7 +4,8 @@ import { StatusBadge } from "../../components/StatusBadge";
 import { formatDateTime } from "../../lib/date";
 import type { Phase0JudgementDraft, Phase0MessyRecord } from "./phase0-types";
 
-type PreviewCategoryKind = Phase0JudgementDraft["possibleKind"] | "unclassified";
+type PreviewCategoryKind =
+  Exclude<Phase0JudgementDraft["possibleKind"], "unknown"> | "unclassified";
 
 export function Phase0PreviewPanel({
   records,
@@ -17,12 +18,16 @@ export function Phase0PreviewPanel({
   selectedRecordId: string;
   drafts: Record<string, Phase0JudgementDraft | undefined>;
   onSelect: (recordId: string) => void;
-  onClassify: (recordId: string, kind: Phase0JudgementDraft["possibleKind"]) => void;
+  onClassify: (
+    recordId: string,
+    kind: Phase0JudgementDraft["possibleKind"],
+  ) => void;
 }) {
   const selectedRecord =
     records.find((record) => record.id === selectedRecordId) ?? records[0];
 
-  const [dragOverCategory, setDragOverCategory] = useState<PreviewCategoryKind | null>(null);
+  const [dragOverCategory, setDragOverCategory] =
+    useState<PreviewCategoryKind | null>(null);
 
   const kindLabelMap: Record<Phase0JudgementDraft["possibleKind"], string> = {
     unknown: "待判斷",
@@ -55,7 +60,8 @@ export function Phase0PreviewPanel({
     (acc, record) => {
       const draft = drafts[record.id];
       const kind = draft?.possibleKind ?? "unknown";
-      const bucketKey: PreviewCategoryKind = kind === "unknown" ? "unclassified" : kind;
+      const bucketKey: PreviewCategoryKind =
+        kind === "unknown" ? "unclassified" : kind;
       if (!acc[bucketKey]) acc[bucketKey] = [];
       acc[bucketKey]!.push(record);
       return acc;
@@ -68,7 +74,10 @@ export function Phase0PreviewPanel({
     event.dataTransfer.setData("text/plain", recordId);
   }
 
-  function handleDrop(event: DragEvent<HTMLDivElement>, kind: PreviewCategoryKind) {
+  function handleDrop(
+    event: DragEvent<HTMLDivElement>,
+    kind: PreviewCategoryKind,
+  ) {
     event.preventDefault();
     setDragOverCategory(null);
     const recordId = event.dataTransfer.getData("text/plain");
@@ -78,7 +87,10 @@ export function Phase0PreviewPanel({
     onClassify(recordId, nextKind);
   }
 
-  function handleDragOver(event: DragEvent<HTMLDivElement>, kind: PreviewCategoryKind) {
+  function handleDragOver(
+    event: DragEvent<HTMLDivElement>,
+    kind: PreviewCategoryKind,
+  ) {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
     setDragOverCategory(kind);
@@ -145,7 +157,9 @@ export function Phase0PreviewPanel({
                         {record.rawText.length > 48 ? "…" : ""}
                       </p>
                       <div className="preview__thumb-meta">
-                        <span>{draft ? kindLabelMap[draft.possibleKind] : "無草稿"}</span>
+                        <span>
+                          {draft ? kindLabelMap[draft.possibleKind] : "無草稿"}
+                        </span>
                         <span>{draft ? draft.confidence : "-"}</span>
                       </div>
                     </div>

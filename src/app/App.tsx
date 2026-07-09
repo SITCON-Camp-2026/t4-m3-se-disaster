@@ -25,9 +25,9 @@ export function App() {
   const [selectedRecordId, setSelectedRecordId] = useState(
     phase0Records[0]?.id ?? "",
   );
-  const [drafts, setDrafts] = useState<Record<string, Phase0JudgementDraft | undefined>>(
-    () => initialDrafts,
-  );
+  const [drafts, setDrafts] = useState<
+    Record<string, Phase0JudgementDraft | undefined>
+  >(() => initialDrafts);
 
   function selectForWorkbench(recordId: string) {
     setSelectedRecordId(recordId);
@@ -50,7 +50,10 @@ export function App() {
     setDrafts((prev) => ({ ...prev, [recordId]: undefined }));
   }
 
-  function classifyRecord(recordId: string, kind: Phase0JudgementDraft["possibleKind"]) {
+  function classifyRecord(
+    recordId: string,
+    kind: Phase0JudgementDraft["possibleKind"],
+  ) {
     setDrafts((prev) => {
       const current = prev[recordId];
       const nextDraft: Phase0JudgementDraft = current
@@ -74,7 +77,8 @@ export function App() {
         <p className="eyebrow">SITCON Camp 2026</p>
         <h1>災害資訊整理工作台</h1>
         <p>
-          這個 v1 prototype 優先支援資訊整理者：先讓你看見原始資料、判斷不確定性，
+          這個 v1 prototype
+          優先支援資訊整理者：先讓你看見原始資料、判斷不確定性，
           再決定哪些候選資訊可以進一步檢查或交給後續協作者。
         </p>
       </header>

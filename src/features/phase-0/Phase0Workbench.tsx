@@ -4,7 +4,7 @@ import { Phase0JudgementCard } from "./Phase0JudgementCard";
 import { createPhase0Judgement } from "./phase0-heuristics";
 import Phase0Editor from "./Phase0Editor";
 import type { Phase0MessyRecord, Phase0JudgementDraft } from "./phase0-types";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export function Phase0Workbench({
   records,
@@ -54,7 +54,14 @@ export function Phase0Workbench({
         <div>
           <span>共 {records.length} 筆原始資料</span>
           <span>已建立草稿：{draftCount}</span>
-          <span>待人工確認：{records.filter((record) => record.verificationStatus !== "verified").length}</span>
+          <span>
+            待人工確認：
+            {
+              records.filter(
+                (record) => record.verificationStatus !== "verified",
+              ).length
+            }
+          </span>
         </div>
       </div>
 
@@ -69,7 +76,9 @@ export function Phase0Workbench({
             >
               <span>{record.id}</span>
               <StatusBadge status={record.verificationStatus} />
-              {drafts[record.id] ? <span className="badge badge--draft">草稿</span> : null}
+              {drafts[record.id] ? (
+                <span className="badge badge--draft">草稿</span>
+              ) : null}
             </button>
           ))}
         </aside>
@@ -77,7 +86,10 @@ export function Phase0Workbench({
         <div className="workbench__main">
           <RecordCard record={selectedRecord} />
 
-          <Phase0JudgementCard judgement={safetyBoundary} record={selectedRecord} />
+          <Phase0JudgementCard
+            judgement={safetyBoundary}
+            record={selectedRecord}
+          />
 
           <Phase0Editor
             record={selectedRecord}
@@ -96,7 +108,9 @@ export function Phase0Workbench({
             <li>請 agent 加上建立、編輯、刪除或重設整理草稿</li>
             <li>至少讓 6 筆原始資訊被嘗試整理成可編輯草稿</li>
             <li>至少挑 2 個候選判斷由人類質疑或修正</li>
-            <li>把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信</li>
+            <li>
+              把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信
+            </li>
           </ul>
         </aside>
       </div>

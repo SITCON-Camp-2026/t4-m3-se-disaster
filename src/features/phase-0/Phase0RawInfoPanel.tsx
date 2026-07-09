@@ -22,7 +22,9 @@ export function Phase0RawInfoPanel({
       <div className="panel__header">
         <div>
           <h2>原始資訊</h2>
-          <p>這些資訊還是未整理的原始內容，應先由資訊整理者判斷是否可以進一步處理。</p>
+          <p>
+            這些資訊還是未整理的原始內容，應先由資訊整理者判斷是否可以進一步處理。
+          </p>
           <p className="panel__hint">
             這裡顯示的資料不能直接當成行動任務，先看看來源、原文、驗證狀態再決定下一步。
           </p>
