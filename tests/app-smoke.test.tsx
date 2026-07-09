@@ -6,19 +6,26 @@ function openWorkbenchWithHumanCheck() {
   fireEvent.click(screen.getByRole("button", { name: "整理草稿區" }));
 
   expect(
-    screen.getByRole("dialog", { name: "進入前閱讀提醒" }),
+    screen.getByRole("dialog", { name: "拼圖校準閱讀提醒" }),
   ).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "進入整理草稿區" })).toBeDisabled();
 
-  fireEvent.click(screen.getByLabelText(/我知道這些資料仍是未整理資料/));
+  fireEvent.change(screen.getByLabelText("拼圖校準"), {
+    target: { value: "96" },
+  });
+  expect(screen.getByText("校準完成")).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "進入整理草稿區" }));
 }
 
 describe("App", () => {
   it("renders starter title", () => {
     render(<App />);
-    expect(screen.getByText("災害資訊整理草稿區")).toBeInTheDocument();
+    expect(screen.getByText("災害資訊協作原型")).toBeInTheDocument();
     expect(screen.getByText(/這不是新的災情回報表/)).toBeInTheDocument();
+    expect(screen.getByText("責任邊界")).toBeInTheDocument();
+    expect(
+      screen.getByText("不判定真偽、不核准任務、不派工"),
+    ).toBeInTheDocument();
   });
 
   it("keeps the home page focused on phase 0 tabs", () => {
@@ -27,6 +34,11 @@ describe("App", () => {
     expect(
       screen.getByRole("button", { name: "整理儀表板" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /資料整理端/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /回報端/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /行動端/ })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "原始資訊" }),
     ).toBeInTheDocument();
@@ -48,6 +60,49 @@ describe("App", () => {
     expect(
       screen.queryByRole("button", { name: "人員指派" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("switches to bento reporter and actor endpoints without enabling real actions", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /回報端/ }));
+
+    expect(
+      screen.getByRole("heading", { name: "便當需求回報網站原型" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("誰需要便當")).toBeInTheDocument();
+    expect(screen.getByLabelText("需要數量")).toBeInTheDocument();
+    expect(screen.getByLabelText("餐別")).toBeInTheDocument();
+    expect(screen.getByText("填寫需求")).toBeInTheDocument();
+    expect(screen.getByText("本機暫存")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "暫存成待確認草稿" }));
+    expect(
+      screen.getByText(/已暫存成待確認草稿：BENTO-001/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/請不要據此通知餐廳/)).toBeInTheDocument();
+    expect(screen.getByText("未整理便當需求")).toBeInTheDocument();
+    expect(screen.getByText("真實訂購送出")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "整理儀表板" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^資料整理端/ }));
+    expect(screen.getByText("BENTO-001 的確認缺口")).toBeInTheDocument();
+    expect(screen.getAllByText(/便當需求回報草稿/).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /行動端/ }));
+
+    expect(
+      screen.getByRole("heading", { name: "行動端候選草稿檢視" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("示範餐廳 A")).toBeInTheDocument();
+    expect(screen.getAllByText("示範可討論量").length).toBeGreaterThan(0);
+    expect(screen.getByText("示範取餐時段")).toBeInTheDocument();
+    expect(screen.getByText("待電話確認")).toBeInTheDocument();
+    expect(screen.getByText("分配前待確認")).toBeInTheDocument();
+    expect(screen.getByText(/素食數量不可直接推估/)).toBeInTheDocument();
+    expect(screen.getByText("不能當成訂單")).toBeInTheDocument();
+    expect(screen.getByText("配送付款流程")).toBeInTheDocument();
   });
 
   it("shows organizer visualizations on the default screen", () => {
@@ -148,6 +203,49 @@ describe("App", () => {
     expect(
       screen.queryByLabelText("卡住的地方 (一行一條)"),
     ).not.toBeInTheDocument();
+  });
+
+  it("sends a draft to the actor endpoint and marks it as reviewed", () => {
+    render(<App />);
+
+    openWorkbenchWithHumanCheck();
+
+    expect(
+      screen.getByRole("heading", { name: "送出候選草稿供討論" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "送出候選草稿供討論" }),
+    ).toBeDisabled();
+    expect(screen.getByText("已保留卡住點")).toBeInTheDocument();
+    expect(screen.getByText("仍標示不可直接行動")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("角色聲明（本機下拉，非驗證）"), {
+      target: { value: "organizer" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "送出候選草稿供討論" }));
+
+    expect(
+      screen.getByText(/已建立行動端候選草稿檢視：CAND-001/),
+    ).toBeInTheDocument();
+    expect(screen.getByText("候選草稿檢視")).toBeInTheDocument();
+    expect(screen.getByText("CAND-001")).toBeInTheDocument();
+    expect(screen.getByText("實行專案")).toHaveClass("task-status--execution");
+    expect(screen.getAllByText(/不可直接行動/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/非訂單、非承諾、非付款/)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("查看角色（本機聲明，非授權）"), {
+      target: { value: "volunteer" },
+    });
+    expect(
+      screen.getByRole("button", { name: "標記已查看草稿" }),
+    ).toBeDisabled();
+    fireEvent.click(screen.getByLabelText(/我知道這只是候選草稿/));
+    fireEvent.click(screen.getByRole("button", { name: "標記已查看草稿" }));
+
+    expect(
+      screen.getByText(/已由志工標記查看 CAND-001 的候選草稿/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "取消查看標記" })).toBeEnabled();
   });
 
   it("keeps draft CRUD as learner work instead of starter output", () => {

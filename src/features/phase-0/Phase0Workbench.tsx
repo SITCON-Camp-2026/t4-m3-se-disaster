@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { RecordCard } from "../../components/RecordCard";
 import { StatusBadge } from "../../components/StatusBadge";
 import { Phase0FlowPanel } from "./Phase0FlowPanel";
@@ -14,6 +15,8 @@ export function Phase0Workbench({
   onSaveDraft,
   onDeleteDraft,
   onResetDraft,
+  taskSubmitIdentities,
+  onSubmitTaskCandidate,
 }: {
   records: Phase0MessyRecord[];
   selectedRecordId: string;
@@ -22,10 +25,23 @@ export function Phase0Workbench({
   onSaveDraft: (draft: Phase0JudgementDraft) => void;
   onDeleteDraft: (recordId: string) => void;
   onResetDraft: (recordId: string) => void;
+  taskSubmitIdentities: Array<{ value: string; label: string }>;
+  onSubmitTaskCandidate: (
+    record: Phase0MessyRecord,
+    draft: Phase0JudgementDraft,
+    identity: string,
+  ) => void;
 }) {
+  const [taskSubmitIdentity, setTaskSubmitIdentity] = useState("");
   const selectedRecord =
     records.find((record) => record.id === selectedRecordId) ?? records[0];
   const selectedDraft = drafts[selectedRecord.id];
+  const canSubmitCandidate = Boolean(
+    selectedDraft &&
+    taskSubmitIdentity &&
+    selectedDraft.unsafeToActDirectly &&
+    selectedDraft.blockers.length > 0,
+  );
   const selectedAnalysis = analyzePhase0Risk(selectedRecord, selectedDraft);
   const directUseReasons = Array.from(
     new Set([
@@ -125,6 +141,67 @@ export function Phase0Workbench({
             onDelete={() => onDeleteDraft(selectedRecord.id)}
             onReset={() => onResetDraft(selectedRecord.id)}
           />
+
+          <section className="task-submit-panel" aria-label="送到行動端">
+            <div>
+              <p className="eyebrow">任務候選送出</p>
+              <h3>送出候選草稿供討論</h3>
+              <p>
+                這會把目前草稿送到行動端的「候選草稿檢視」，方便下一位協作者討論。
+                不代表資料已確認，也不是正式派工或執行指示。
+              </p>
+            </div>
+
+            <label>
+              角色聲明（本機下拉，非驗證）
+              <select
+                value={taskSubmitIdentity}
+                onChange={(event) => setTaskSubmitIdentity(event.target.value)}
+              >
+                <option value="">請選擇身份</option>
+                {taskSubmitIdentities.map((identity) => (
+                  <option key={identity.value} value={identity.value}>
+                    {identity.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="task-submit-panel__checks" aria-label="送出前檢核">
+              <span>
+                {selectedDraft ? "已建立整理草稿" : "尚未建立整理草稿"}
+              </span>
+              <span>
+                {selectedDraft?.blockers.length
+                  ? "已保留卡住點"
+                  : "尚未保留卡住點"}
+              </span>
+              <span>
+                {selectedDraft?.unsafeToActDirectly
+                  ? "仍標示不可直接行動"
+                  : "尚未標示不可直接行動"}
+              </span>
+            </div>
+
+            <button
+              disabled={!canSubmitCandidate}
+              type="button"
+              onClick={() => {
+                if (!selectedDraft || !taskSubmitIdentity) return;
+                onSubmitTaskCandidate(
+                  selectedRecord,
+                  selectedDraft,
+                  taskSubmitIdentity,
+                );
+              }}
+            >
+              送出候選草稿供討論
+            </button>
+
+            <p>
+              送出後仍會保留「需要人工確認」與「不可直接行動」的邊界；行動端只能標記已查看草稿。
+            </p>
+          </section>
         </div>
       </div>
     </div>
