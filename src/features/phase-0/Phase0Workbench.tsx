@@ -1,10 +1,9 @@
 import { RecordCard } from "../../components/RecordCard";
 import { StatusBadge } from "../../components/StatusBadge";
-import { Phase0JudgementCard } from "./Phase0JudgementCard";
-import { createPhase0Judgement } from "./phase0-heuristics";
+import { Phase0FlowPanel } from "./Phase0FlowPanel";
+import { Phase0TracePanel } from "./Phase0TracePanel";
 import Phase0Editor from "./Phase0Editor";
 import type { Phase0MessyRecord, Phase0JudgementDraft } from "./phase0-types";
-import { useEffect } from "react";
 
 export function Phase0Workbench({
   records,
@@ -25,12 +24,7 @@ export function Phase0Workbench({
 }) {
   const selectedRecord =
     records.find((record) => record.id === selectedRecordId) ?? records[0];
-  const safetyBoundary = createPhase0Judgement(selectedRecord);
   const draftCount = Object.values(drafts).filter(Boolean).length;
-
-  useEffect(() => {
-    console.debug("Phase0Workbench.drafts", drafts);
-  }, [drafts]);
 
   return (
     <div className="workbench">
@@ -86,9 +80,15 @@ export function Phase0Workbench({
         <div className="workbench__main">
           <RecordCard record={selectedRecord} />
 
-          <Phase0JudgementCard
-            judgement={safetyBoundary}
+          <Phase0TracePanel
             record={selectedRecord}
+            draft={drafts[selectedRecord.id]}
+          />
+
+          <Phase0FlowPanel
+            record={selectedRecord}
+            draft={drafts[selectedRecord.id]}
+            onApply={(draft) => onSaveDraft(draft)}
           />
 
           <Phase0Editor
@@ -99,20 +99,6 @@ export function Phase0Workbench({
             onReset={() => onResetDraft(selectedRecord.id)}
           />
         </div>
-
-        <aside className="workbench__checklist">
-          <h3>第一階段完成檢查</h3>
-          <ul>
-            <li>Starter 已載入 {records.length} 筆原始資訊</li>
-            <li>目前草稿數量：{draftCount}</li>
-            <li>請 agent 加上建立、編輯、刪除或重設整理草稿</li>
-            <li>至少讓 6 筆原始資訊被嘗試整理成可編輯草稿</li>
-            <li>至少挑 2 個候選判斷由人類質疑或修正</li>
-            <li>
-              把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信
-            </li>
-          </ul>
-        </aside>
       </div>
     </div>
   );

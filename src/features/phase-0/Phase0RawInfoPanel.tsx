@@ -12,11 +12,6 @@ export function Phase0RawInfoPanel({
   selectedRecordId: string;
   onSelect: (recordId: string) => void;
 }) {
-  const statusCounts = records.reduce((acc: Record<string, number>, record) => {
-    acc[record.verificationStatus] = (acc[record.verificationStatus] ?? 0) + 1;
-    return acc;
-  }, {});
-
   return (
     <div className="phase0-raw">
       <div className="panel__header">
@@ -30,15 +25,6 @@ export function Phase0RawInfoPanel({
           </p>
         </div>
         <p>{records.length} 筆資料</p>
-      </div>
-
-      <div className="panel__status-summary">
-        <strong>狀態摘要：</strong>
-        {Object.entries(statusCounts).map(([status, count]) => (
-          <span key={status} className="panel__status-item">
-            {status}：{count}
-          </span>
-        ))}
       </div>
 
       <div className="grid">

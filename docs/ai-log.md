@@ -29,27 +29,68 @@
 
 ## 範例
 
-| 時間             | 階段       | 任務                                  | AI / Agent 建議                                                                                                                                                         | 採用 / 拒絕 | 人類判斷理由                                                                            | 相關檔案 / commit                                                                   |
-| ---------------- | ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 09:45            | Phase 0    | 分析原始資訊                          | 建議把社群貼文直接轉成 verified report                                                                                                                                  | 拒絕        | 社群貼文來源未確認，應保持 `needs_review`                                               | `docs/phase0-observations.md`                                                       |
-| 2026-07-09 09:49 | Phase 0    | 分析並摘要 Phase 0 必讀文件與原始資料 | 列出每筆資料可見欄位、不可確定之處、並建議在 UI 保持 `needs_review`/`unverified` 標示                                                                                   | 採用        | 保守處理，不補真實資料；將需要人工確認的欄位標示供後續人工核實                          | `docs/phase0-observations.md`, `src/fixtures/phase-0/messy-reports.json`            |
-| 2026-07-09 09:54 | Phase 0    | 實作最小工作台草稿功能                | 在工作台新增草稿建立/編輯/重設/刪除的 UI（僅存在於 client state），並在側欄顯示草稿標示與草稿數量                                                                       | 採用        | 讓小組能在不改動原始檔案下嘗試整理草稿與審核流程                                        | `src/features/phase-0/Phase0Editor.tsx`, `src/features/phase-0/Phase0Workbench.tsx` |
-| 2026-07-09 10:00 | Phase 0    | 預先建立示範草稿                      | 為加速示範與達成 sprint 要求，預先在工作台初始化 6 筆保守草稿（前 2 筆為需要人類質疑的候選）                                                                            | 採用        | 方便小組快速檢視草稿流程與完成第一階段檢查，草稿僅存在 UI state，無寫回 fixtures        | `src/features/phase-0/Phase0Workbench.tsx`                                          |
-| 2026-07-09 10:05 | Phase 0    | 標註示範草稿為需人類質疑              | 將初始化的前 2 筆草稿分別標記為 `confidence: low/medium`、加入 `blockers` 與 `humanReviewNote`，並將 `suggestedNextStep` 設為 `send_to_human_review` 以示範人類質疑流程 | 採用        | 讓學生在打開工作台時立即看到需要人工核實的範例，方便教學演示                            | `src/features/phase-0/Phase0Workbench.tsx`                                          |
-| 2026-07-09 13:45 | Release 01 | 啟動使用者訪談階段                    | 將 Release 01 `01-interview-kit` 的訪談模板複製到 `docs/`，準備填寫 `docs/interview-notes.md`、`docs/interview-summary.md`、`docs/decisions.md`                         | 採用        | 這個階段是需求分析，不會修改 `src/`；先把訪談文件放到正確位置，才能按指引進行訪談與決策 | `docs/interview-notes.md`, `docs/interview-summary.md`, `docs/decisions.md`         |
-| 2026-07-09 14:10 | Release 01 | 產生三個 persona 的使用者回饋草稿     | 根據 `subagent-interview` prompt 與各 persona 模板生成三種觀點的回饋，並寫入 `docs/interview-notes.md`                                                                  | 採用        | 這些回饋為初稿，後續需要人類檢查、修改與補充；保持 `docs/` 文件為主作業區               | `docs/interview-notes.md`, `docs/ai-log.md`                                         |
-| 2026-07-09 14:25 | Release 02 | 撰寫流程設計初稿                      | 建立 `docs/flow.md`，說明 v1 優先服務資訊整理者的原始資訊整理流程與人工確認點                                                                                           | 採用        | 這是 Release 02 的流程設計階段，先把流程說清楚再進行實作                                | `docs/flow.md`, `docs/ai-log.md`                                                    |
+| 時間             | 階段       | 任務                                  | AI / Agent 建議                                                                                                                                                         | 採用 / 拒絕 | 人類判斷理由                                                                             | 相關檔案 / commit                                                                                                                                                                        |
+| ---------------- | ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 09:45            | Phase 0    | 分析原始資訊                          | 建議把社群貼文直接轉成 verified report                                                                                                                                  | 拒絕        | 社群貼文來源未確認，應保持 `needs_review`                                                | `docs/phase0-observations.md`                                                                                                                                                            |
+| 2026-07-09 09:49 | Phase 0    | 分析並摘要 Phase 0 必讀文件與原始資料 | 列出每筆資料可見欄位、不可確定之處、並建議在 UI 保持 `needs_review`/`unverified` 標示                                                                                   | 採用        | 保守處理，不補真實資料；將需要人工確認的欄位標示供後續人工核實                           | `docs/phase0-observations.md`, `src/fixtures/phase-0/messy-reports.json`                                                                                                                 |
+| 2026-07-09 09:54 | Phase 0    | 實作最小工作台草稿功能                | 在工作台新增草稿建立/編輯/重設/刪除的 UI（僅存在於 client state），並在側欄顯示草稿標示與草稿數量                                                                       | 採用        | 讓小組能在不改動原始檔案下嘗試整理草稿與審核流程                                         | `src/features/phase-0/Phase0Editor.tsx`, `src/features/phase-0/Phase0Workbench.tsx`                                                                                                      |
+| 2026-07-09 10:00 | Phase 0    | 預先建立示範草稿                      | 為加速示範與達成 sprint 要求，預先在工作台初始化 6 筆保守草稿（前 2 筆為需要人類質疑的候選）                                                                            | 採用        | 方便小組快速檢視草稿流程與完成第一階段檢查，草稿僅存在 UI state，無寫回 fixtures         | `src/features/phase-0/Phase0Workbench.tsx`                                                                                                                                               |
+| 2026-07-09 10:05 | Phase 0    | 標註示範草稿為需人類質疑              | 將初始化的前 2 筆草稿分別標記為 `confidence: low/medium`、加入 `blockers` 與 `humanReviewNote`，並將 `suggestedNextStep` 設為 `send_to_human_review` 以示範人類質疑流程 | 採用        | 讓學生在打開工作台時立即看到需要人工核實的範例，方便教學演示                             | `src/features/phase-0/Phase0Workbench.tsx`                                                                                                                                               |
+| 2026-07-09 13:45 | Release 01 | 啟動使用者訪談階段                    | 將 Release 01 `01-interview-kit` 的訪談模板複製到 `docs/`，準備填寫 `docs/interview-notes.md`、`docs/interview-summary.md`、`docs/decisions.md`                         | 採用        | 這個階段是需求分析，不會修改 `src/`；先把訪談文件放到正確位置，才能按指引進行訪談與決策  | `docs/interview-notes.md`, `docs/interview-summary.md`, `docs/decisions.md`                                                                                                              |
+| 2026-07-09 14:10 | Release 01 | 產生三個 persona 的使用者回饋草稿     | 根據 `subagent-interview` prompt 與各 persona 模板生成三種觀點的回饋，並寫入 `docs/interview-notes.md`                                                                  | 採用        | 這些回饋為初稿，後續需要人類檢查、修改與補充；保持 `docs/` 文件為主作業區                | `docs/interview-notes.md`, `docs/ai-log.md`                                                                                                                                              |
+| 2026-07-09 14:25 | Release 02 | 撰寫流程設計初稿                      | 建立 `docs/flow.md`，說明 v1 優先服務資訊整理者的原始資訊整理流程與人工確認點                                                                                           | 採用        | 這是 Release 02 的流程設計階段，先把流程說清楚再進行實作                                 | `docs/flow.md`, `docs/ai-log.md`                                                                                                                                                         |
+| 2026-07-09 14:40 | Release 01 | 補使用者訪談的人類判斷痕跡            | 代擬小隊對三個 persona 的取捨、採用 / 不採用 AI 建議、以及 v1 優先服務資訊整理者的理由                                                                                  | 部分採用    | 內容先作為小隊暫定答案；仍需人類檢查是否符合實際討論，不把 AI 代擬文字當成最終決策       | `docs/interview-notes.md`, `docs/interview-summary.md`, `docs/decisions.md`                                                                                                              |
+| 2026-07-09 14:55 | Release 01 | 拉高需求決策層次與視野                | 將 v1 決策從單一功能取捨改寫為跨角色資訊協作鏈與資訊風險緩衝層，補上回報者、資訊整理者、行動者的階段性關係                                                              | 採用        | 這能說清楚為什麼先服務資訊整理者，也避免讓 v1 被誤解成完整救災系統或行動決策工具         | `docs/decisions.md`, `docs/interview-summary.md`, `docs/ai-log.md`                                                                                                                       |
+| 2026-07-09 15:10 | Release 03 | 依訪談結果改善 UI 決策引導            | 在首頁加入狀態摘要與 v1 服務對象，在整理工作台加入「決策引導」側欄，提醒不可直接變成任務、下一步與人工確認問題                                                          | 採用        | 只把訪談結論轉成介面提示，不新增真實資料、不自動判定已確認，也不做派工或行動決策         | `src/app/App.tsx`, `src/features/phase-0/Phase0Workbench.tsx`, `src/styles/global.css`, `tests/app-smoke.test.tsx`                                                                       |
+| 2026-07-09 15:25 | Release 03 | 完善資料整理者可視化                  | 新增整理儀表板，呈現查核狀態分布、資訊取得方式、候選整理狀態、草稿覆蓋與優先人工確認清單                                                                                | 採用        | 可視化只協助整理者看見資料品質與工作缺口，不代表救災優先順序，也不把未確認資訊改成已確認 | `src/features/phase-0/Phase0Dashboard.tsx`, `src/app/App.tsx`, `src/styles/global.css`, `tests/app-smoke.test.tsx`                                                                       |
+| 2026-07-09 15:40 | Release 03 | 依決策文件優化工作台追溯性            | 新增判斷追溯面板，把每筆資料拆成原文可見、候選判斷、仍有缺口、誤用風險，並把草稿選項文字改得更保守                                                                      | 採用        | 對應 `docs/decisions.md` 的資訊風險與介面風險，避免候選資料看起來像已確認或可派工        | `src/features/phase-0/Phase0TracePanel.tsx`, `src/features/phase-0/Phase0Workbench.tsx`, `src/features/phase-0/Phase0Editor.tsx`, `src/styles/global.css`, `tests/app-smoke.test.tsx`    |
+| 2026-07-09 15:50 | Release 03 | 精簡整理工作台                        | 移除整理工作台中的 Starter 安全預設卡片與右側決策引導，保留原始資料、判斷追溯與草稿編輯                                                                                 | 採用        | 使用者希望減少重複提示與干擾，工作台改為聚焦在資料檢視與人工整理操作                     | `src/features/phase-0/Phase0Workbench.tsx`, `src/styles/global.css`, `tests/app-smoke.test.tsx`                                                                                          |
+| 2026-07-09 16:05 | Release 03 | 新增資料風險熱度圖                    | 參考 GitHub 貢獻圖形式，在整理儀表板加入每筆原始資訊一格的風險熱度圖，可點選進入工作台                                                                                  | 採用        | 命名為資料風險熱度圖，避免被誤解成完成度、確認度或救災優先順序                           | `src/features/phase-0/Phase0Dashboard.tsx`, `src/styles/global.css`, `tests/app-smoke.test.tsx`                                                                                          |
+| 2026-07-09 16:20 | Release 03 | 建立 12 筆保守草稿並統一風險分析      | 用本機規則式分析從 12 筆 Phase 0 原始資訊產生保守草稿，並讓儀表板熱度與追溯面板使用同一套風險原因                                                                       | 採用        | 沒有呼叫網路 AI 或外部 API；保守草稿只作整理起點，仍需人工檢查與修正                     | `src/features/phase-0/phase0-risk-analysis.ts`, `src/features/phase-0/phase0-initial-drafts.ts`, `src/features/phase-0/Phase0Dashboard.tsx`, `src/features/phase-0/Phase0TracePanel.tsx` |
+| 2026-07-09 16:45 | Release 03 | 將 flow.md 流程實作到 UI              | 新增流程檢核面板，把查看來源、判斷清楚程度、形成候選、標註不確定性、留下理由五步接到工作台，並提供保守流程操作                                                          | 採用        | 讓資訊整理者依流程操作，同時避免流程按鈕把資料變成已確認或可行動任務                     | `src/features/phase-0/Phase0FlowPanel.tsx`, `src/features/phase-0/Phase0Workbench.tsx`, `src/styles/global.css`, `tests/app-smoke.test.tsx`                                              |
+
+## 這次整理時放入與捨去的資訊
+
+### 被放入文件的資訊
+
+- Phase 0 原始資訊的狀態摘要：目前 12 筆資料中，9 筆是 `needs_review`，3 筆是 `unverified`，沒有任何一筆是 `verified`。
+- 三個 persona 的核心觀點：回報者想降低回報門檻，資訊整理者想保留來源與不確定性，行動者需要可靠且可行動的資訊。
+- v1 的主要服務對象：暫定優先服務「資訊整理者」，因為這一層最能降低未確認資訊被誤用的風險。
+- 高層次定位：v1 不是完整救災系統，而是資訊協作鏈中的「資訊整理與風險標記層」。
+- 必須保留的人工判斷：資料是否已確認、AI 建議是否有原文依據、是否能進入下一步、需要補問誰和補問什麼。
+- 不確定性的呈現需求：原文、資訊取得方式、查核狀態、AI 建議、人工判斷要分開顯示，避免混在一起。
+
+### 被捨去或暫時不放入文件的資訊
+
+- 沒有把任何原始資訊改寫成已確認事實，因為目前資料狀態沒有 `verified`。
+- 沒有補真實地址、真實人物、真實電話、地圖資訊或外部新聞，因為 Phase 0 規則要求只能使用既有 mock data。
+- 沒有把「候選資訊」寫成正式任務，因為候選只代表可討論，不代表可以派人行動。
+- 沒有採用「AI 自動判斷可行動」的方向，因為 AI 可能把推測包裝成看起來合理的結論。
+- 沒有優先設計回報者完整填表流程，因為這會把 v1 焦點從資訊可信度轉到表單輸入。
+- 沒有優先設計行動者派工或路線流程，因為這需要更完整的確認流程、責任邊界與真實資料驗證。
+- 沒有把 Release 02 之後的實作內容提前寫成決策結論，避免把尚未確認的後續方向當成已定案。
+
+### 捨去的主要理由
+
+- 安全性：避免未確認資訊被包裝成可行動任務。
+- 課程範圍：目前階段是需求分析與 v1 取捨，不是真實救災產品實作。
+- 資料邊界：只能使用 Phase 0 原始資訊，不外查、不補真實世界資料。
+- AI 風險：AI 擅長補完敘事，但這裡需要保留缺口，而不是把缺口填滿。
 
 ## 課後反思
 
 ### AI 幫助最大的地方
 
--
+- AI 很快幫我們把三個角色的共同需求整理出來，特別是「來源」「查核狀態」「不能直接變成任務」這幾個重點。
+- AI 也幫我們把模糊想法轉成可以寫進文件的取捨句子，讓小隊比較容易討論是否採用。
 
 ### AI 最容易誤導的地方
 
--
+- AI 容易把「候選判斷」寫得像已確認結論，例如暗示某筆資訊可以變成任務或已經知道下一步該交給誰。
+- AI 也可能替使用者補出沒有訪談過的需求，所以我們需要把這些內容標成暫定，而不是當作真實訪談結果。
 
 ### 下次使用 AI 開發前，我們會先準備
 
--
+- 先列出目前階段能改和不能改的檔案，避免在需求分析階段誤改前端程式。
+- 先決定要 AI 幫忙「整理問題」還是「提出決策」，並要求它把推測和事實分開。
+- 先保留小隊自己的確認欄位，讓 AI 草稿後面一定有人類採用 / 不採用的判斷。

@@ -67,11 +67,11 @@ export function Phase0Editor({
           }
         >
           <option value="unknown">候選類型待判斷</option>
-          <option value="help_request_candidate">求助候選</option>
-          <option value="site_status_candidate">地點狀態候選</option>
-          <option value="task_candidate">任務候選</option>
-          <option value="assignment_candidate">人員指派候選</option>
-          <option value="announcement_candidate">公告候選</option>
+          <option value="help_request_candidate">求助候選（待確認）</option>
+          <option value="site_status_candidate">地點狀態候選（待確認）</option>
+          <option value="task_candidate">任務候選（不可派工）</option>
+          <option value="assignment_candidate">人員指派候選（不可指派）</option>
+          <option value="announcement_candidate">公告候選（待確認）</option>
         </select>
       </label>
 
@@ -119,7 +119,9 @@ export function Phase0Editor({
           <option value="send_to_human_review">交給人工確認</option>
           <option value="ask_for_more_info">補問來源或現場資訊</option>
           <option value="keep_raw">先保留原始資訊</option>
-          <option value="create_candidate_report">建立候選通報</option>
+          <option value="create_candidate_report">
+            建立候選通報（仍需確認）
+          </option>
           <option value="do_not_use_yet">暫時不要使用</option>
         </select>
       </label>
@@ -134,7 +136,7 @@ export function Phase0Editor({
       </label>
 
       <label>
-        人工審核備註
+        人工審核備註（修正原因 / 需要補問什麼）
         <input
           value={draft.humanReviewNote ?? ""}
           onChange={(e) => updateField("humanReviewNote", e.target.value)}
