@@ -36,6 +36,9 @@
 | 2026-07-09 09:54 | Phase 0 | 實作最小工作台草稿功能 | 在工作台新增草稿建立/編輯/重設/刪除的 UI（僅存在於 client state），並在側欄顯示草稿標示與草稿數量 | 採用 | 讓小組能在不改動原始檔案下嘗試整理草稿與審核流程 | `src/features/phase-0/Phase0Editor.tsx`, `src/features/phase-0/Phase0Workbench.tsx` |
 | 2026-07-09 10:00 | Phase 0 | 預先建立示範草稿 | 為加速示範與達成 sprint 要求，預先在工作台初始化 6 筆保守草稿（前 2 筆為需要人類質疑的候選） | 採用 | 方便小組快速檢視草稿流程與完成第一階段檢查，草稿僅存在 UI state，無寫回 fixtures | `src/features/phase-0/Phase0Workbench.tsx` |
 | 2026-07-09 10:05 | Phase 0 | 標註示範草稿為需人類質疑 | 將初始化的前 2 筆草稿分別標記為 `confidence: low/medium`、加入 `blockers` 與 `humanReviewNote`，並將 `suggestedNextStep` 設為 `send_to_human_review` 以示範人類質疑流程 | 採用 | 讓學生在打開工作台時立即看到需要人工核實的範例，方便教學演示 | `src/features/phase-0/Phase0Workbench.tsx` |
+| 2026-07-09 13:45 | Release 01 | 啟動使用者訪談階段 | 將 Release 01 `01-interview-kit` 的訪談模板複製到 `docs/`，準備填寫 `docs/interview-notes.md`、`docs/interview-summary.md`、`docs/decisions.md` | 採用 | 這個階段是需求分析，不會修改 `src/`；先把訪談文件放到正確位置，才能按指引進行訪談與決策 | `docs/interview-notes.md`, `docs/interview-summary.md`, `docs/decisions.md` |
+| 2026-07-09 14:10 | Release 01 | 產生三個 persona 的使用者回饋草稿 | 根據 `subagent-interview` prompt 與各 persona 模板生成三種觀點的回饋，並寫入 `docs/interview-notes.md` | 採用 | 這些回饋為初稿，後續需要人類檢查、修改與補充；保持 `docs/` 文件為主作業區 | `docs/interview-notes.md`, `docs/ai-log.md` |
+| 2026-07-09 14:25 | Release 02 | 撰寫流程設計初稿 | 建立 `docs/flow.md`，說明 v1 優先服務資訊整理者的原始資訊整理流程與人工確認點 | 採用 | 這是 Release 02 的流程設計階段，先把流程說清楚再進行實作 | `docs/flow.md`, `docs/ai-log.md` |
 
 ## 課後反思
 

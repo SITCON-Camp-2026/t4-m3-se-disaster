@@ -17,6 +17,9 @@ export function Phase0Editor({
     return (
       <div className="editor">
         <p>尚未建立草稿。按「建立草稿」開始（僅為 UI 狀態）。</p>
+        <p className="editor__hint">
+          對於不確定資訊，請保留「不可直接行動」，並在備註欄中說明目前的判斷理由或缺口。
+        </p>
         <button type="button" onClick={() => onChange({
           messyRecordId: record.id,
           possibleKind: "unknown",

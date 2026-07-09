@@ -4,77 +4,33 @@ import { Phase0JudgementCard } from "./Phase0JudgementCard";
 import { createPhase0Judgement } from "./phase0-heuristics";
 import Phase0Editor from "./Phase0Editor";
 import type { Phase0MessyRecord, Phase0JudgementDraft } from "./phase0-types";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function Phase0Workbench({
   records,
   selectedRecordId,
+  drafts,
   onSelect,
+  onSaveDraft,
+  onDeleteDraft,
+  onResetDraft,
 }: {
   records: Phase0MessyRecord[];
   selectedRecordId: string;
+  drafts: Record<string, Phase0JudgementDraft | undefined>;
   onSelect: (recordId: string) => void;
+  onSaveDraft: (draft: Phase0JudgementDraft) => void;
+  onDeleteDraft: (recordId: string) => void;
+  onResetDraft: (recordId: string) => void;
 }) {
   const selectedRecord =
     records.find((record) => record.id === selectedRecordId) ?? records[0];
   const safetyBoundary = createPhase0Judgement(selectedRecord);
-  const [drafts, setDrafts] = useState<Record<string, Phase0JudgementDraft | undefined>>(() => {
-    // 預先建立保守草稿：前 6 筆建立可編輯草稿，其中前 2 筆作為候選並標示需人類質疑
-    const initial: Record<string, Phase0JudgementDraft | undefined> = {};
-    records.slice(0, 6).forEach((r, i) => {
-      if (i < 2) {
-        // make first two explicit examples that need human review
-        initial[r.id] = {
-          messyRecordId: r.id,
-          possibleKind: "task_candidate",
-          confidence: i === 0 ? "low" : "medium",
-          evidence: ["初步候選：需要人工確認來源與時效"],
-          blockers: ["來源未完全核實；時間或地點可能不明"],
-          suggestedNextStep: "send_to_human_review",
-          unsafeToActDirectly: true,
-          humanReviewNote:
-            i === 0
-              ? "人工質疑：來源未確認；不應直接派工。需聯絡回報者核實時間與位置。"
-              : "人工質疑：需再次盤點與確認是否為當日現場狀態。",
-        };
-      } else {
-        initial[r.id] = {
-          messyRecordId: r.id,
-          possibleKind: "unknown",
-          confidence: "low",
-          evidence: [],
-          blockers: ["需人工確認來源/細節"],
-          suggestedNextStep: "send_to_human_review",
-          unsafeToActDirectly: true,
-        };
-      }
-    });
-    return initial;
-  });
-  const draftCount = Object.keys(drafts).filter((k) => drafts[k]).length;
+  const draftCount = Object.values(drafts).filter(Boolean).length;
 
-  function saveDraft(draft: Phase0JudgementDraft) {
-    setDrafts((prev) => ({ ...prev, [draft.messyRecordId]: draft }));
-  }
-
-  function deleteDraft(recordId: string) {
-    setDrafts((prev) => {
-      const next = { ...prev };
-      delete next[recordId];
-      console.debug("Phase0Workbench.deleteDraft", { recordId, prev, next });
-      return next;
-    });
-  }
-
-  // debug: log drafts whenever they change to help investigate UI state
-  // (remove this in production)
   useEffect(() => {
     console.debug("Phase0Workbench.drafts", drafts);
   }, [drafts]);
-
-  function resetDraft(recordId: string) {
-    setDrafts((prev) => ({ ...prev, [recordId]: undefined }));
-  }
 
   return (
     <div className="workbench">
@@ -82,9 +38,24 @@ export function Phase0Workbench({
         <p className="eyebrow">整理工作台</p>
         <h2>第一階段的成功不是分類正確，而是把為什麼現在還不能判斷說清楚。</h2>
         <p>
-          這裡先只標示安全邊界，真正的候選判斷要由小組和 coding agent
-          補上；這不是 runtime LLM 分析，也不是正式資料模型。
+          這個頁面優先給資訊整理者：先判斷哪些資訊是未確認候選、哪些需要人工確認。
         </p>
+        <p>
+          這裡整合可編輯草稿、候選類型與人工確認線索，讓你更清楚哪些內容仍只是
+          未驗證的候選，而不是已確認事實。
+        </p>
+      </div>
+
+      <div className="workbench__summary">
+        <div>
+          <strong>整理提示：</strong>
+          <span>先建立草稿，再補上佐證、卡住點與是否可直接行動。</span>
+        </div>
+        <div>
+          <span>共 {records.length} 筆原始資料</span>
+          <span>已建立草稿：{draftCount}</span>
+          <span>待人工確認：{records.filter((record) => record.verificationStatus !== "verified").length}</span>
+        </div>
       </div>
 
       <div className="workbench__layout">
@@ -106,17 +77,14 @@ export function Phase0Workbench({
         <div className="workbench__main">
           <RecordCard record={selectedRecord} />
 
-          <Phase0JudgementCard
-            judgement={safetyBoundary}
-            record={selectedRecord}
-          />
+          <Phase0JudgementCard judgement={safetyBoundary} record={selectedRecord} />
 
           <Phase0Editor
             record={selectedRecord}
             draft={drafts[selectedRecord.id]}
-            onChange={(d) => saveDraft(d)}
-            onDelete={() => deleteDraft(selectedRecord.id)}
-            onReset={() => resetDraft(selectedRecord.id)}
+            onChange={(draft) => onSaveDraft(draft)}
+            onDelete={() => onDeleteDraft(selectedRecord.id)}
+            onReset={() => onResetDraft(selectedRecord.id)}
           />
         </div>
 
@@ -128,9 +96,7 @@ export function Phase0Workbench({
             <li>請 agent 加上建立、編輯、刪除或重設整理草稿</li>
             <li>至少讓 6 筆原始資訊被嘗試整理成可編輯草稿</li>
             <li>至少挑 2 個候選判斷由人類質疑或修正</li>
-            <li>
-              把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信
-            </li>
+            <li>把資料品質問題寫進 observations，並記錄 agent 哪裡不能直接相信</li>
           </ul>
         </aside>
       </div>

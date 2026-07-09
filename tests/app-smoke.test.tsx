@@ -15,6 +15,9 @@ describe("App", () => {
       screen.getByRole("button", { name: "原始資訊" }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("button", { name: "預覽資料" }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole("button", { name: "整理工作台" }),
     ).toBeInTheDocument();
     expect(
